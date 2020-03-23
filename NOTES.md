@@ -1,0 +1,1 @@
+* Пример тегов, да и вообще прикольная тема от крутого пацыка Huang Xuan https://github.com/Huxpro/huxpro.github.io
