@@ -1,0 +1,41 @@
+stages:
+  - build
+  - publish
+
+build:
+  image: jekyll/builder:4.0.0
+  variables:
+    JEKYLL_ENV: production
+    LC_ALL: C.UTF-8
+  stage: build
+  script:
+  - cd docs/
+  - bundle update
+  - bundle exec jekyll build --baseurl "$CI_PROJECT_NAME"
+  artifacts:
+    paths:
+    - docs/_site
+  only:
+    - dev
+
+pages:
+  stage: publish
+  dependencies:
+    - build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - mkdir public
+    - echo "CI_PROJECT_NAMESPACE = $CI_PROJECT_NAMESPACE" >> "public/build.log"
+    - echo "CI_COMMIT_REF_SLUG = $CI_COMMIT_REF_SLUG" >> "public/build.log"
+    - env >> "public/build.log"
+    - echo >> "public/build.log"
+    - cp --recursive docs/_site/* public/
+    - echo "See log file https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/build.log"
+    - echo "Browse the site on https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/"
+  artifacts:
+    paths:
+      - public
+    expire_in: 90 days
+  only:
+    - dev
