@@ -8,9 +8,7 @@ permalink: /learning/
 
 {% for learn in site.learning %}
   <h2>
-    <a href="{{ learn.url }}">
-      {{ learn.title }}
-    </a>
+    <a href="{{ learn.url | relative_url }}">{{ learn.title }}</a>
   </h2>
   <p>{{ learn.content | markdownify }}</p>
 {% endfor %}

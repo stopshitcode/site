@@ -37,7 +37,7 @@
 			{% if ssc_item_code == current_page_code %}
 			{% assign ssc_item_lang = ssc_item.path | split: "/" | last  | split: "." | first %}
 			{% if ssc_item_lang != current_page_lang %}
-			<li><a href="{{ ssc_item.url }}" class="{{ ssc_item_lang }}"
+			<li><a href="{{ ssc_item.url | relative_url }}" class="{{ ssc_item_lang }}"
 					title="View in {{ ssc_item_lang }}">{{ site.data.languages[ssc_item_lang].icon }}
 					{{ site.data.languages[ssc_item_lang].label }}</a></li>
 			{% endif %}
