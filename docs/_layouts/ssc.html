@@ -1,0 +1,50 @@
+{% assign current_page_code = page.path  | remove: "_ssc/" | split: "/" | first %}
+{% assign current_page_lang = page.path | split: "/" | last  | split: "." | first %}
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>{{ page.title }}</title>
+	{% comment %}
+	Include link tags denoting the alternate versions of the current page.
+	This will help search engines accurately index your site.
+	{% endcomment %}
+	{% for ssc_item in site.ssc %}
+	{% assign ssc_item_code = ssc_item.path  | remove: "_ssc/" | split: "/" | first %}
+	{% if ssc_item_code == current_page_code %}
+	{% assign ssc_item_lang = ssc_item.path | split: "/" | last  | split: "." | first %}
+	{% if ssc_item_lang != current_page_lang %}
+	<link rel="alternate" hreflang="{{ ssc_item_lang }}" href="{{ ssc_item.url }}" />
+	{% endif %}
+	{% endif %}
+	{% endfor %}
+</head>
+
+<body>
+	<h1>{{ page.title }}</h1>
+	<section>
+		{{ content }}
+	</section>
+	<footer>
+		{% comment %}
+		Display alternate translation options for each SSC
+		{% endcomment %}
+		<em>{{ site.data.translations['differentLanguage'][current_page_lang] }}:</em>
+		<ul>
+			{% for ssc_item in site.ssc %}
+			{% assign ssc_item_code = ssc_item.path  | remove: "_ssc/" | split: "/" | first %}
+			{% if ssc_item_code == current_page_code %}
+			{% assign ssc_item_lang = ssc_item.path | split: "/" | last  | split: "." | first %}
+			{% if ssc_item_lang != current_page_lang %}
+			<li><a href="{{ ssc_item.url }}" class="{{ ssc_item_lang }}"
+					title="View in {{ ssc_item_lang }}">{{ site.data.languages[ssc_item_lang].icon }}
+					{{ site.data.languages[ssc_item_lang].label }}</a></li>
+			{% endif %}
+			{% endif %}
+			{% endfor %}
+		</ul>
+	</footer>
+</body>
+
+</html>

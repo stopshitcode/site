@@ -1,7 +1,0 @@
----
-layout: post
-title:  SSC-202000
-date:   2020-03-22 13:14:13 -0500
-categories: jekyll update
----
-SSC test
