@@ -1,0 +1,66 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558 
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Jekyll Development Server UP",
+			"type": "shell",
+			"group": "build",
+			"command": "docker-compose --env-file=/dev/null up",
+			"isBackground": true,
+			"runOptions": {
+				"reevaluateOnRerun": false
+			},
+			"problemMatcher": {
+				"owner": "custom",
+				"pattern": {
+					"regexp": "^$"
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Creating network \"site_default\" with the default driver",
+					"endsPattern": ".*Server address: http://0.0.0.0:4000/devel/"
+				}
+			}
+		},
+		{
+			"label": "Jekyll Development Server DOWN",
+			"type": "shell",
+			"group": "build",
+			"command": "docker-compose --env-file=/dev/null down",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Client Watch",
+			"group": "build",
+			"type": "npm",
+			"path": "client/",
+			"script": "watch",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "Client Build",
+			"group": "build",
+			"type": "npm",
+			"path": "client/",
+			"script": "build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			]
+		},
+		{
+			"label": "Watch both: Jekyll Development Server & Client",
+			"dependsOn": [
+				"Jekyll Development Server UP",
+				"Client Watch"
+			],
+			"problemMatcher": []
+		}
+	]
+}

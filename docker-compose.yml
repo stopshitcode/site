@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  jekyll-builder-stopshitcode:
+    image: jekyll/builder:4.0.0
+    ports:
+      - 127.0.0.1:4000:4000/tcp
+    volumes:
+      - ./docs/.vendor/bundle:/usr/local/bundle
+      - ./docs:/srv/jekyll
+      - ./client/.dist:/srv/jekyll/_site/js
+    command: >
+      bash -c "bundle update
+      && bundle exec jekyll serve --host 0.0.0.0 --watch --force_polling --baseurl /devel"
