@@ -1,10 +1,17 @@
 {
 	"compilerOptions": {
 		"outDir": "./.dist/",
+		"alwaysStrict": true,
 		"noImplicitAny": true,
-		"module": "es6",
+		"module": "es2020",
+		"moduleResolution": "node",
 		"target": "es5",
 		"sourceMap": true,
-		"allowJs": false
+		"allowJs": false,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"strictPropertyInitialization": true,
+		"strictFunctionTypes": true
 	}
 }

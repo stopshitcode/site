@@ -21,6 +21,8 @@
 	"files.exclude": {
 		"client/.dist": true,
 		"client/node_modules": true,
+		"client/src/**/*.js": true,
+		"client/src/**/*.d.ts": true,
 		"docs/.jekyll-cache": true,
 		"docs/.vendor": true,
 	},
