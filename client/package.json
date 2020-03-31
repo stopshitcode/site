@@ -31,8 +31,10 @@
 		"webpack-merge": "^4.2.2"
 	},
 	"dependencies": {
+		"@types/firebase": "^3.2.1",
 		"@zxteam/contract": "^6.0.60",
 		"@zxteam/errors": "^6.0.57",
+		"firebase": "^7.13.1",
 		"lodash": "^4.17.15"
 	}
 }

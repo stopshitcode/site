@@ -5,3 +5,5 @@
 layout: home
 ---
 Истории о гавнокоде, гавнокодерах, заказчиках которые платят за гавнокод
+
+<button id="logIn" onclick="logIn(true)">Log-in</button>

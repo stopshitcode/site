@@ -6,6 +6,7 @@ import { InvalidOperationError, ArgumentError } from "@zxteam/errors";
 import isString from "lodash/isString";
 import { stringify } from "querystring";
 
+const firebase = require("firebase");
 
 export interface UserProfile {
 	// TODO something
@@ -15,8 +16,8 @@ export interface UserProfile {
 
 export namespace UserProfile {
 	export async function authorize(cancellationToken: CancellationToken): Promise<UserProfile> {
-		//
-		cancellationToken.throwIfCancellationRequested();
+		// how send cancellation token with browser button?
+		// cancellationToken.throwIfCancellationRequested();
 
 		const savedProfileData: string | null = window.localStorage.getItem(USER_PROFILE_DATA_KEY);
 		if (savedProfileData !== null) {
@@ -30,10 +31,12 @@ export namespace UserProfile {
 			return new UserProfileImpl(userProfileDataModel.token);
 		}
 
+		const credentials = await authWithFirebase();
 
-		// No savedProfileData, so make new authorization
+		// Save token to local storage
+		window.localStorage.setItem(USER_PROFILE_DATA_KEY, JSON.stringify(credentials));
 
-		throw new InvalidOperationError("Not implemented yet");
+		return new UserProfileImpl(credentials.token);
 	}
 
 
@@ -87,13 +90,53 @@ export namespace UserProfile {
 
 
 	class UserProfileImpl implements UserProfile {
-		private readonly _gitlabToken: string;
+		private readonly _gitLabToken: string;
 
-		public constructor(gitlabToken: string) {
-			this._gitlabToken = gitlabToken;
+		public constructor(gitLabToken: string) {
+			this._gitLabToken = gitLabToken;
 		}
 	}
 
 	class BrokenUserProfileDataModelError extends ArgumentError { }
 	class ExpiredUserProfileError extends Error { }
+
+	export async function authWithFirebase(): Promise<{ token: string, expirationDateIso: Date }> {
+
+		const firebaseConfig = {
+			apiKey: "AIzaSyD0VVySWwGLYNONBnQOnbIc1ItemvAAlhY",
+			authDomain: "stopshitcode-backend.firebaseapp.com",
+			databaseURL: "https://stopshitcode-backend.firebaseio.com",
+			projectId: "stopshitcode-backend",
+			storageBucket: "stopshitcode-backend.appspot.com",
+			messagingSenderId: "373799334125",
+			appId: "1:373799334125:web:ee72cb304043fd287e1ce4",
+			measurementId: "G-29QRP7NL0F"
+		};
+		// Initialize Firebase
+		firebase.initializeApp(firebaseConfig);
+		firebase.analytics();
+
+		const provider = new firebase.auth.GithubAuthProvider();
+
+		return new Promise((resolve, reject) => {
+
+			firebase.auth().signInWithPopup(provider).then((result: any) => {
+				// This gives you a GitHub Access Token. You can use it to access the GitHub API.
+				const token: string = result.credential.accessToken;
+				const creationTime = result.user.metadata.creationTime;
+
+				// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
+				const expirationDateIso = new Date("2024-10-10");
+				return resolve({ token, expirationDateIso });
+
+			}).catch((error: any) => {
+				// Handle Errors here.
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				const email = error.email;
+				const credential = error.credential;
+				return reject(error);
+			});
+		});
+	}
 }
