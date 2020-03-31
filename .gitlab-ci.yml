@@ -2,7 +2,22 @@ stages:
   - build
   - publish
 
-build:
+build-client:
+  image: node:11-alpine
+  stage: build
+  script:
+  - cd client/
+  - npm install --no-progress
+  - npm run build
+  artifacts:
+    paths:
+    - client/.dist
+  tags:
+    - docker
+  only:
+    - dev
+
+build-docs:
   image: jekyll/builder:4.0.0
   variables:
     JEKYLL_ENV: production
@@ -23,7 +38,8 @@ build:
 pages:
   stage: publish
   dependencies:
-    - build
+    - build-client
+    - build-docs
   variables:
     GIT_STRATEGY: none
   script:
@@ -33,6 +49,7 @@ pages:
     - env >> "public/build.log"
     - echo >> "public/build.log"
     - cp --recursive docs/_site/* public/
+    - cp --recursive client/.dist/bundle.js public/js/bundle.js
     - echo "See log file https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/build.log"
     - echo "Browse the site on https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/"
   artifacts:
