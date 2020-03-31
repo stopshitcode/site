@@ -1,14 +1,18 @@
 import { CancellationToken } from "@zxteam/contract";
-import { InvalidOperationError, ArgumentError } from "@zxteam/errors";
+import { sleep } from "@zxteam/cancellation";
+import { ArgumentError, InnerError, wrapErrorIfNeeded } from "@zxteam/errors";
 
 // See about lodash in a Webpack, TypeScript project
 // https://stackoverflow.com/questions/49036745/not-able-to-tree-shake-lodash-in-a-webpack-typescript-project
 import isString from "lodash/isString";
-import { stringify } from "querystring";
 
-const firebase = require("firebase");
+import * as firebase from "firebase/app";
+import "firebase/analytics";
+import "firebase/auth";
+
 
 export interface UserProfile {
+	readonly email: string;
 	// TODO something
 	//likeSCC()
 	//dislikeSCC()
@@ -16,10 +20,13 @@ export interface UserProfile {
 
 export namespace UserProfile {
 	export async function authorize(cancellationToken: CancellationToken): Promise<UserProfile> {
-		// how send cancellation token with browser button?
-		// cancellationToken.throwIfCancellationRequested();
+		cancellationToken.throwIfCancellationRequested();
 
-		const savedProfileData: string | null = window.localStorage.getItem(USER_PROFILE_DATA_KEY);
+		await sleep(cancellationToken, 3000); // Fake sleep to test cancellation
+
+		const savedProfileData: string | null = window.localStorage.getItem(
+			UserProfileDataModel.LOCAL_STORAGE_KEY
+		);
 		if (savedProfileData !== null) {
 			// Already authorized
 			const userProfileDataModel: UserProfileDataModel = UserProfileDataModel.parse(savedProfileData);
@@ -28,22 +35,24 @@ export namespace UserProfile {
 				throw new ExpiredUserProfileError();
 			}
 
-			return new UserProfileImpl(userProfileDataModel.token);
+			return new UserProfileImpl(userProfileDataModel);
+		} else {
+			const userProfileDataModel: UserProfileDataModel = await authWithFirebase();
+
+			// Save token to local storage
+			window.localStorage.setItem(
+				UserProfileDataModel.LOCAL_STORAGE_KEY,
+				JSON.stringify(userProfileDataModel.toJSON())
+			);
+
+			return new UserProfileImpl(userProfileDataModel);
 		}
-
-		const credentials = await authWithFirebase();
-
-		// Save token to local storage
-		window.localStorage.setItem(USER_PROFILE_DATA_KEY, JSON.stringify(credentials));
-
-		return new UserProfileImpl(credentials.token);
 	}
 
 
-	const USER_PROFILE_DATA_KEY: string = "profile";
-
 	class UserProfileDataModel {
 		public readonly token: string;
+		public readonly email: string;
 		public readonly expirationDate: Date;
 
 		public static parse(data: string): UserProfileDataModel {
@@ -54,8 +63,16 @@ export namespace UserProfile {
 				throw new ArgumentError("data", "Unparsable User Profile data model", e);
 			}
 
+			const email = probablyData.email;
 			const token = probablyData.token;
 			const expirationDate: Date = new Date(probablyData.expirationDateIso);
+
+			if (!isString(token)) {
+				throw new ArgumentError(
+					"data",
+					`Wrong value '${probablyData.email}' for 'email' parameter. Expected string.`
+				);
+			}
 
 			if (!isString(token)) {
 				throw new ArgumentError(
@@ -72,35 +89,55 @@ export namespace UserProfile {
 				);
 			}
 
-			return new UserProfileDataModel(token, expirationDate);
+			return new UserProfileDataModel({ email, token, expirationDate });
 		}
 
-		public toString(): string {
-			return JSON.stringify({
+		public constructor(opts: {
+			readonly email: string;
+			readonly token: string;
+			readonly expirationDate: Date
+		}) {
+			if (isNaN(opts.expirationDate.getTime())) {
+				// https://stackoverflow.com/questions/1353684/detecting-an-invalid-date-date-instance-in-javascript
+				throw new ArgumentError(
+					"expirationDate",
+					`Wrong value '${opts.expirationDate}' for 'expirationDate' parameter. Expected valid Date object.`
+				);
+			}
+
+			this.token = opts.token;
+			this.email = opts.email;
+			this.expirationDate = opts.expirationDate;
+		}
+
+		public toJSON(): any {
+			return Object.freeze({
+				email: this.email,
 				token: this.token,
 				expirationDateIso: this.expirationDate.toISOString()
 			});
 		}
-
-		private constructor(token: string, expirationDate: Date) {
-			this.token = token;
-			this.expirationDate = expirationDate;
-		}
+	}
+	namespace UserProfileDataModel {
+		export const LOCAL_STORAGE_KEY: string = "profile";
 	}
 
 
 	class UserProfileImpl implements UserProfile {
-		private readonly _gitLabToken: string;
+		private readonly _model: UserProfileDataModel;
 
-		public constructor(gitLabToken: string) {
-			this._gitLabToken = gitLabToken;
+		public constructor(model: UserProfileDataModel) {
+			this._model = model;
 		}
+
+		public get email(): string { return this._model.email; }
 	}
 
-	class BrokenUserProfileDataModelError extends ArgumentError { }
-	class ExpiredUserProfileError extends Error { }
+	export class AuthFailedError extends InnerError { }
+	export class BrokenUserProfileDataModelError extends ArgumentError { }
+	export class ExpiredUserProfileError extends Error { }
 
-	export async function authWithFirebase(): Promise<{ token: string, expirationDateIso: Date }> {
+	async function authWithFirebase(): Promise<UserProfileDataModel> {
 
 		const firebaseConfig = {
 			apiKey: "AIzaSyD0VVySWwGLYNONBnQOnbIc1ItemvAAlhY",
@@ -118,25 +155,46 @@ export namespace UserProfile {
 
 		const provider = new firebase.auth.GithubAuthProvider();
 
-		return new Promise((resolve, reject) => {
+		try {
+			const result: firebase.auth.UserCredential = await firebase.auth().signInWithPopup(provider);
 
-			firebase.auth().signInWithPopup(provider).then((result: any) => {
-				// This gives you a GitHub Access Token. You can use it to access the GitHub API.
-				const token: string = result.credential.accessToken;
-				const creationTime = result.user.metadata.creationTime;
+			const credential: firebase.auth.AuthCredential | null = result.credential;
+			const user: firebase.User | null = result.user;
 
-				// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
-				const expirationDateIso = new Date("2024-10-10");
-				return resolve({ token, expirationDateIso });
+			if (credential === null) {
+				throw new AuthFailedError("No credential");
+			}
+			if (user === null) {
+				throw new AuthFailedError("No user");
+			}
+			if (!(credential instanceof firebase.auth.OAuthCredential)) {
+				throw new AuthFailedError("Unexpected credential class");
+			}
+			if (credential.accessToken === undefined) {
+				throw new AuthFailedError("accessToken was not provided");
+			}
 
-			}).catch((error: any) => {
-				// Handle Errors here.
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				const email = error.email;
-				const credential = error.credential;
-				return reject(error);
-			});
-		});
+			// This gives you a GitHub Access Token. You can use it to access the GitHub API.
+			const token: string = credential.accessToken;
+			const email: string | null = user.email;
+			if (email === null) {
+				throw new AuthFailedError("No email");
+			}
+
+			// GitLab token never expired. So use 15 days to relogin
+			// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
+			const expirationDate = new Date(
+				Date.now() + 1000 * 60 * 60 * 24 * 15 // now + 15 days
+			);
+
+			return new UserProfileDataModel({ email, token, expirationDate });
+		} catch (error) {
+			// Handle Errors here.
+			const errorCode = error.code;
+			const errorMessage = error.message;
+			const email = error.email;
+			const credential = error.credential;
+			throw new AuthFailedError(errorMessage, wrapErrorIfNeeded(error));
+		}
 	}
 }

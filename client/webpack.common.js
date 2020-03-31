@@ -7,13 +7,12 @@ module.exports = {
 			{
 				loader: 'ts-loader',
 				test: /\.tsx?$/,
-				//include: [/src\//, /node_modules\/@zxteam\//],
-				//exclude: /node_modules/
+				exclude: /node_modules/
 			},
 		],
 	},
 	resolve: {
-		extensions: ['.tsx', '.ts', '.js'],
+		extensions: ['.tsx', '.ts', '.js']
 	},
 	output: {
 		filename: 'bundle.js',
