@@ -44,12 +44,13 @@ pages:
     GIT_STRATEGY: none
   script:
     - mkdir public
+    - mkdir public/js/
     - echo "CI_PROJECT_NAMESPACE = $CI_PROJECT_NAMESPACE" >> "public/build.log"
     - echo "CI_COMMIT_REF_SLUG = $CI_COMMIT_REF_SLUG" >> "public/build.log"
     - env >> "public/build.log"
     - echo >> "public/build.log"
     - cp --recursive docs/_site/* public/
-    - cp --recursive client/.dist/bundle.js public/js/bundle.js
+    - cp client/.dist/bundle.js public/js/
     - echo "See log file https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/build.log"
     - echo "Browse the site on https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/"
   artifacts:
