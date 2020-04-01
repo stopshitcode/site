@@ -15,7 +15,6 @@ console.log("Hello, World2");
 console.log(filter("Hello, World", w => w !== "o").join());
 
 window.onload = () => {
-
 	{
 		const doLoginButtonId: string = "btn_do_login";
 		const loginButton: HTMLElement | null = document.getElementById(doLoginButtonId);
@@ -30,6 +29,13 @@ window.onload = () => {
 	}
 
 	_gLoginButton.onclick = onLoginButtonClick;
+
+	_gCurrentUserProfile = UserProfile.findInStorage();
+
+	if (_gCurrentUserProfile !== null) {
+		_gLoginButton.disabled = true;
+		_gLoginButton.innerText = `Authorized as ${_gCurrentUserProfile.email}`;
+	}
 };
 
 

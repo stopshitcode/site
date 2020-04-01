@@ -1,24 +1,42 @@
 import { CancellationToken } from "@zxteam/contract";
 import { sleep } from "@zxteam/cancellation";
-import { ArgumentError, InnerError, wrapErrorIfNeeded } from "@zxteam/errors";
+import { ArgumentError, InvalidOperationError } from "@zxteam/errors";
 
 // See about lodash in a Webpack, TypeScript project
 // https://stackoverflow.com/questions/49036745/not-able-to-tree-shake-lodash-in-a-webpack-typescript-project
 import isString from "lodash/isString";
 
-import * as firebase from "firebase/app";
-import "firebase/analytics";
-import "firebase/auth";
-
+import { ExpiredUserProfileError } from "./Errors";
+import { FirebaseApp } from "./FirebaseApp";
 
 export interface UserProfile {
 	readonly email: string;
-	// TODO something
-	//likeSCC()
-	//dislikeSCC()
+	readonly token: string;
+
+	createSscComment(sscId: string, text: string): Promise<void>;
+	likeSsc(sscId: string): Promise<void>;
+	dislikeSsc(sscId: string): Promise<void>;
 }
 
 export namespace UserProfile {
+	export function findInStorage(): UserProfile | null {
+		const savedProfileData: string | null = window.localStorage.getItem(
+			UserProfileDataModel.LOCAL_STORAGE_KEY
+		);
+		if (savedProfileData !== null) {
+			// Already authorized
+			const userProfileDataModel: UserProfileDataModel = UserProfileDataModel.parse(savedProfileData);
+
+			if (Date.now() > userProfileDataModel.expirationDate.getTime()) {
+				window.localStorage.removeItem(UserProfileDataModel.LOCAL_STORAGE_KEY);
+			}
+
+			return new UserProfileImpl(userProfileDataModel);
+		}
+
+		return null;
+	}
+
 	export async function authorize(cancellationToken: CancellationToken): Promise<UserProfile> {
 		cancellationToken.throwIfCancellationRequested();
 
@@ -37,7 +55,19 @@ export namespace UserProfile {
 
 			return new UserProfileImpl(userProfileDataModel);
 		} else {
-			const userProfileDataModel: UserProfileDataModel = await authWithFirebase();
+
+			const firebaseApp: FirebaseApp = await FirebaseApp.getInstance();
+
+			const { email, token } = await firebaseApp.authorizeViaGitHub();
+
+			// GitLab token never expired. So use 15 days to re-login
+			// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
+			const expirationDate = new Date(
+				Date.now() + 1296000000 // 1000 * 60 * 60 * 24 * 15 == now + 15 days
+			);
+
+			const userProfileDataModel: UserProfileDataModel =
+				new UserProfileDataModel({ email, token, expirationDate });
 
 			// Save token to local storage
 			window.localStorage.setItem(
@@ -47,6 +77,10 @@ export namespace UserProfile {
 
 			return new UserProfileImpl(userProfileDataModel);
 		}
+	}
+
+	export function signOut(): void {
+		window.localStorage.removeItem(UserProfileDataModel.LOCAL_STORAGE_KEY);
 	}
 
 
@@ -122,7 +156,6 @@ export namespace UserProfile {
 		export const LOCAL_STORAGE_KEY: string = "profile";
 	}
 
-
 	class UserProfileImpl implements UserProfile {
 		private readonly _model: UserProfileDataModel;
 
@@ -131,70 +164,18 @@ export namespace UserProfile {
 		}
 
 		public get email(): string { return this._model.email; }
-	}
+		public get token(): string { return this._model.token; }
 
-	export class AuthFailedError extends InnerError { }
-	export class BrokenUserProfileDataModelError extends ArgumentError { }
-	export class ExpiredUserProfileError extends Error { }
+		public async createSscComment(sscId: string, text: string): Promise<void> {
+			throw new InvalidOperationError("Not implemented yet");
+		}
 
-	async function authWithFirebase(): Promise<UserProfileDataModel> {
+		public async likeSsc(sscId: string): Promise<void> {
+			throw new InvalidOperationError("Not implemented yet");
+		}
 
-		const firebaseConfig = {
-			apiKey: "AIzaSyD0VVySWwGLYNONBnQOnbIc1ItemvAAlhY",
-			authDomain: "stopshitcode-backend.firebaseapp.com",
-			databaseURL: "https://stopshitcode-backend.firebaseio.com",
-			projectId: "stopshitcode-backend",
-			storageBucket: "stopshitcode-backend.appspot.com",
-			messagingSenderId: "373799334125",
-			appId: "1:373799334125:web:ee72cb304043fd287e1ce4",
-			measurementId: "G-29QRP7NL0F"
-		};
-		// Initialize Firebase
-		firebase.initializeApp(firebaseConfig);
-		firebase.analytics();
-
-		const provider = new firebase.auth.GithubAuthProvider();
-
-		try {
-			const result: firebase.auth.UserCredential = await firebase.auth().signInWithPopup(provider);
-
-			const credential: firebase.auth.AuthCredential | null = result.credential;
-			const user: firebase.User | null = result.user;
-
-			if (credential === null) {
-				throw new AuthFailedError("No credential");
-			}
-			if (user === null) {
-				throw new AuthFailedError("No user");
-			}
-			if (!(credential instanceof firebase.auth.OAuthCredential)) {
-				throw new AuthFailedError("Unexpected credential class");
-			}
-			if (credential.accessToken === undefined) {
-				throw new AuthFailedError("accessToken was not provided");
-			}
-
-			// This gives you a GitHub Access Token. You can use it to access the GitHub API.
-			const token: string = credential.accessToken;
-			const email: string | null = user.email;
-			if (email === null) {
-				throw new AuthFailedError("No email");
-			}
-
-			// GitLab token never expired. So use 15 days to re-login
-			// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
-			const expirationDate = new Date(
-				Date.now() + 1296000000 // 1000 * 60 * 60 * 24 * 15 == now + 15 days
-			);
-
-			return new UserProfileDataModel({ email, token, expirationDate });
-		} catch (error) {
-			// Handle Errors here.
-			const errorCode = error.code;
-			const errorMessage = error.message;
-			const email = error.email;
-			const credential = error.credential;
-			throw new AuthFailedError(errorMessage, wrapErrorIfNeeded(error));
+		public async dislikeSsc(sscId: string): Promise<void> {
+			throw new InvalidOperationError("Not implemented yet");
 		}
 	}
 }
