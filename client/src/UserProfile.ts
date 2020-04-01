@@ -181,10 +181,10 @@ export namespace UserProfile {
 				throw new AuthFailedError("No email");
 			}
 
-			// GitLab token never expired. So use 15 days to relogin
+			// GitLab token never expired. So use 15 days to re-login
 			// https://stackoverflow.com/questions/26902600/whats-the-lifetime-of-github-oauth-api-access-token
 			const expirationDate = new Date(
-				Date.now() + 1000 * 60 * 60 * 24 * 15 // now + 15 days
+				Date.now() + 1296000000 // 1000 * 60 * 60 * 24 * 15 == now + 15 days
 			);
 
 			return new UserProfileDataModel({ email, token, expirationDate });

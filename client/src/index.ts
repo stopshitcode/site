@@ -35,7 +35,7 @@ window.onload = () => {
 
 /**
  * Handler for click on Login Button
- * [!] Should be excepton safe
+ * [!] Should be exception safe
  */
 async function onLoginButtonClick() {
 	const cts: CancellationTokenSource = new ManualCancellationTokenSource();
@@ -50,7 +50,7 @@ async function onLoginButtonClick() {
 	} catch (e) {
 		_gCurrentUserProfile = null;
 		console.error(e);
-		alert("Failed to authorize. See console for detals. Error class: " + (e).constructor.name);
+		alert("Failed to authorize. See console for details. Error class: " + (e).constructor.name);
 	} finally {
 		_gLoginButton.onclick = onLoginButtonClick; // Restore original
 		_gLoginButton.innerText = backupButtonText;
