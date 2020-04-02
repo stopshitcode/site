@@ -50,7 +50,7 @@ pages:
     - env >> "public/build.log"
     - echo >> "public/build.log"
     - cp --recursive docs/_site/* public/
-    - cp client/.dist/bundle.js public/js/
+    - cp client/.dist/*.js public/js/
     - echo "See log file https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/build.log"
     - echo "Browse the site on https://$CI_PROJECT_NAMESPACE.pages.zxteam.net/$CI_PROJECT_NAME/"
   artifacts:
