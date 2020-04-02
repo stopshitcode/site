@@ -7,3 +7,4 @@ layout: home
 Истории о гавнокоде, гавнокодерах, заказчиках которые платят за гавнокод
 
 <button id="btn_do_login">Log In</button>
+<div id="ui-target"></div>

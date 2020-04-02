@@ -9,15 +9,6 @@ import isString from "lodash/isString";
 import { ExpiredUserProfileError } from "./Errors";
 import { FirebaseApp } from "./FirebaseApp";
 
-export interface UserProfile {
-	readonly email: string;
-	readonly token: string;
-
-	createSscComment(sscId: string, text: string): Promise<void>;
-	likeSsc(sscId: string): Promise<void>;
-	dislikeSsc(sscId: string): Promise<void>;
-}
-
 export namespace UserProfile {
 	export function findInStorage(): UserProfile | null {
 		const savedProfileData: string | null = window.localStorage.getItem(

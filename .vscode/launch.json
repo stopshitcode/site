@@ -4,8 +4,17 @@
 		{
 			"type": "chrome",
 			"request": "launch",
-			"name": "Site (Debug + Build)",
-			"url": "http://127.0.0.1:4000/devel/",
+			"name": "Site with VueJS UI (Debug + Build)",
+			"url": "http://127.0.0.1:4000/devel/#vue",
+			"webRoot": "${workspaceFolder}/client/",
+			"preLaunchTask": "Client Build",
+			"sourceMaps": true
+		},
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Site with Svelte UI (Debug + Build)",
+			"url": "http://127.0.0.1:4000/devel/#svelte",
 			"webRoot": "${workspaceFolder}/client/",
 			"preLaunchTask": "Client Build",
 			"sourceMaps": true
