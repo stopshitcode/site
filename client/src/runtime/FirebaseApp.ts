@@ -33,7 +33,8 @@ export class FirebaseApp {
 		readonly email: string;
 	}> {
 		const provider = new firebase.auth.GithubAuthProvider();
-
+		provider.addScope('repo');
+		
 		try {
 			const result: firebase.auth.UserCredential = await firebase.auth().signInWithPopup(provider);
 			const firebaseAuth = firebase.auth;

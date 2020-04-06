@@ -6,6 +6,7 @@ import { wrapErrorIfNeeded } from "@zxteam/errors";
 import filter from "lodash/filter";
 
 import { UserProfile } from "./runtime/UserProfile";
+import { GitService } from "./runtime/GitService";
 
 let _gLoginButton: HTMLButtonElement;
 
@@ -53,10 +54,12 @@ window.addEventListener("load", function () {
 	_gLoginButton.onclick = onLoginButtonClick;
 
 	document.userProfile = UserProfile.findInStorage();
+	document.gitService = null;
 
 	if (document.userProfile !== null) {
 		_gLoginButton.disabled = true;
 		_gLoginButton.innerText = `Authorized as ${document.userProfile.email}`;
+		document.gitService = new GitService(document.userProfile.token);
 	}
 });
 

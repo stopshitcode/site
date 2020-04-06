@@ -1,23 +1,47 @@
-<script lang="ts">
-import Vue from "vue";
+<template>
+	<div>
+		<form v-on:submit.prevent="postCommentSubmit">
+			<h1>TEST </h1>
+			<textarea name="comments" cols="30" rows="5" class="html-text-box" v-model="commentBody"></textarea>
+			<br />
+			<input type="submit" value="Post" class="html-text-box" />
+		</form>
+		<IssueComponent v-for="issue of issues"
+		:issue="issue"
+		:key="issue.id" />
+	</div>
+</template>
 
-export default Vue.extend({
-  data() {
-    return {
-      commentBody: "VueJS + Typescript + Webpack"
-    };
-  },
-  methods: {
-    postCommentSubmit() {
+<script lang="ts">
+import { Vue, Component } from "vue-property-decorator";
+import IssueComponent from "./IssueComponent.vue";
+
+@Component({
+	components: {
+		IssueComponent,
+	}
+})
+export default class PostComment extends Vue{
+	commentBody:string =  "VueJS + Typescript + Webpack";
+
+	issues: [] = [];
+
+	postCommentSubmit() {
       const userProfile = window.document.userProfile;
       if (userProfile !== null && !(userProfile instanceof Promise)) {
         alert("postCommentSubmit as " + userProfile.email);
       } else {
         alert("postCommentSubmit as anonymous");
       }
-    }
-  }
-});
+	}
+	
+	async created() {
+		if (!window.document.gitService) {
+			return;
+		}
+		this.issues = await window.document.gitService.getIssues();
+	}
+}
 </script>
 
 <style>
@@ -40,11 +64,3 @@ input.html-text-box {
   color: #000000;
 }
 </style>
-
-<template>
-  <form v-on:submit.prevent="postCommentSubmit">
-    <textarea name="comments" cols="30" rows="5" class="html-text-box" v-model="commentBody"></textarea>
-    <br />
-    <input type="submit" value="Post" class="html-text-box" />
-  </form>
-</template>
