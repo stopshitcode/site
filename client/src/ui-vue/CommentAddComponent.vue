@@ -2,7 +2,9 @@
 	<div>
 		<form>
 			<textarea v-model="comment"></textarea>
-			<button type="Submit" @click.prevent="sendComment">Send</button>
+			<div class="btn-bar">
+				<button type="Submit" @click.prevent="sendComment">Send</button>
+			</div>
 		</form>
 	</div>
 </template>
@@ -27,5 +29,16 @@ export default class CommentAddComponenet extends Vue{
 </script>
 
 <style scoped>
-
+div {
+	max-width: 90%;
+	margin: auto;
+}
+div.btn-bar {
+	margin: unset;
+}
+form {
+	display: flex;
+	flex-direction: column;
+	margin-top: 10px;
+}
 </style>

@@ -4,7 +4,7 @@
 			<UserProfile :user="issue.user"/>
 			<div>
 				<p class="title">{{issue.title}}</p>
-				<p class="body">{{issue.body}}</p>
+				<p class="body" v-html="getIssue(issue.body)"></p>
 			</div>
 		</div>
 		<div class=comments>
@@ -43,6 +43,10 @@ export default class IssueComponent extends Vue{
 			return;
 		}
 		this.comments = await window.document.gitService.getIssueComments(this.issue);
+	}
+
+	getIssue(issueBody: string):string {
+		return issueBody.replace(/\!\[image\]\((.*?)\)/g, '<img src="$1">');
 	}
 
 	created() {
