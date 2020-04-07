@@ -2,7 +2,7 @@
 	<div>
 		<div class="comment">
 			<UserProfile :user="comment.user"/>
-			<p>{{comment.body}}</p>
+			<p v-html="comment.body"></p>
 		</div>
 	</div>
 </template>
@@ -17,7 +17,7 @@ import UserProfile from "./UserProfileComponent.vue";
 	}
 })
 export default class IssueCommentComponent extends Vue{
-	@Prop() comment!: any;
+	@Prop() comment!: IGitComment;
 }
 </script>
 
@@ -26,11 +26,12 @@ div.comment {
 	display: flex;
 }
 
-p {
+.comment-content {
 	flex-grow: 1;
 	font-size: 12px;
 	overflow-wrap: break-word;
     max-width: calc(100% - 70px);
 	text-align: justify;
 }
+
 </style>

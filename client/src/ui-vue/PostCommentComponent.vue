@@ -22,9 +22,9 @@ import IssueComponent from "./IssueComponent.vue";
 	}
 })
 export default class PostComment extends Vue{
-	commentBody:string =  "VueJS + Typescript + Webpack";
+	commentBody: string =  "VueJS + Typescript + Webpack";
 
-	issues: [] = [];
+	issues: IGitIssue[] = [];
 
 	postCommentSubmit() {
       const userProfile = window.document.userProfile;
@@ -35,11 +35,15 @@ export default class PostComment extends Vue{
       }
 	}
 	
-	async created() {
+	private async getIssues(): Promise<void> {
 		if (!window.document.gitService) {
 			return;
 		}
 		this.issues = await window.document.gitService.getIssues();
+	}
+
+	created() {
+		this.getIssues();
 	}
 }
 </script>

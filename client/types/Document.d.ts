@@ -3,7 +3,7 @@ declare module 'Our UI' {
 		interface Document {
 			startUI(): void;
 			userProfile: UserProfile | Promise<UserProfile> | null;
-			gitService: GitService | null;
+			gitService: IGitService | null;
 		}
 	}
 }

@@ -10,7 +10,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component({})
 export default class UserProfileComponent extends Vue{
-	@Prop() user!: any;
+	@Prop() user!: IGitUser;
 }
 </script>
 

@@ -4,7 +4,7 @@
 			<UserProfile :user="issue.user"/>
 			<div>
 				<p class="title">{{issue.title}}</p>
-				<p class="body" v-html="getIssue(issue.body)"></p>
+				<p class="body" v-html="issue.body"></p>
 			</div>
 		</div>
 		<div class=comments>
@@ -34,19 +34,15 @@ import CommentAdd from "./CommentAddComponent.vue";
 	}
 })
 export default class IssueComponent extends Vue{
-	@Prop() issue!: any;
+	@Prop() issue!: IGitIssue;
 
-	private comments: any[] = [];
+	private comments: IGitComment[] = [];
 
-	async getComments() {
+	private async getComments(): Promise<void> {
 		if (!window.document.gitService) {
 			return;
 		}
 		this.comments = await window.document.gitService.getIssueComments(this.issue);
-	}
-
-	getIssue(issueBody: string):string {
-		return issueBody.replace(/\!\[image\]\((.*?)\)/g, '<img src="$1">');
 	}
 
 	created() {
@@ -55,7 +51,7 @@ export default class IssueComponent extends Vue{
 }
 </script>
 
-<style scoped>
+<style>
 	div {
 		margin-bottom: 10px;
 	}
@@ -75,6 +71,9 @@ export default class IssueComponent extends Vue{
 		margin-right: 10px;
 		font-size: 12px;
 		text-align: justify;
+	}
+	p.body img {
+		display: block;
 	}
 	.comments {
 		margin: 10px 0 0 60px;
