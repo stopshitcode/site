@@ -11,6 +11,7 @@ interface IGitIssue {
 	title: string;
 	body: string;
 	user: IGitUser;
+	comments: number;
 }
 
 interface IGitComment {

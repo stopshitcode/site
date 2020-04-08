@@ -35,10 +35,11 @@ export class GitService implements IGitService {
 	public async getIssues(): Promise<IGitIssue[]> {
 		const url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/issues`;
 		const response =  await this.makeRequest('GET', url, 200);
-		
+		console.log(response);
 		return response.map((responseIssue: any): IGitIssue => {
 			Ensure().number(responseIssue.id);
 			Ensure().number(responseIssue.number);
+			Ensure().number(responseIssue.comments);
 			Ensure().string(responseIssue.comments_url);
 			Ensure().string(responseIssue.title);
 			Ensure().string(responseIssue.body);
@@ -50,6 +51,7 @@ export class GitService implements IGitService {
 				comments_url: responseIssue.comments_url,
 				title: responseIssue.title,
 				body: this.convertGitContentToHtml(responseIssue.body),
+				comments: responseIssue.comments,
 				user: {
 					login: responseIssue.user.login,
 					id: responseIssue.user.id,

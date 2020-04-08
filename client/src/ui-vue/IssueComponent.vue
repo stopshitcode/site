@@ -7,7 +7,14 @@
 				<p class="body" v-html="issue.body"></p>
 			</div>
 		</div>
-		<div class=comments>
+		<div class="toggle-comments" @click="toggleComments">
+			<p>
+				{{this.showComments
+					? "^^^ Hide Comments ^^^"
+					: `vvv Show Comments(${issue.comments}) vvv`}}
+			</p>
+		</div>
+		<div v-if="showComments" class=comments>
 			<IssueComment
 				v-for="comment of comments"
 				:comment="comment"
@@ -36,7 +43,16 @@ import CommentAdd from "./CommentAddComponent.vue";
 export default class IssueComponent extends Vue{
 	@Prop() issue!: IGitIssue;
 
-	private comments: IGitComment[] = [];
+	comments: IGitComment[] = [];
+
+	showComments: boolean = false;
+
+	async toggleComments() {
+		if (this.comments.length === 0) {
+			await this.getComments();
+		}
+		this.showComments = !this.showComments;
+	}
 
 	private async getComments(): Promise<void> {
 		if (!window.document.gitService) {
@@ -45,9 +61,9 @@ export default class IssueComponent extends Vue{
 		this.comments = await window.document.gitService.getIssueComments(this.issue);
 	}
 
-	created() {
-		this.getComments();	
-	}
+	// created() {
+	// 	this.getComments();	
+	// }
 }
 </script>
 
@@ -80,5 +96,16 @@ export default class IssueComponent extends Vue{
 		padding: 10px;
 		border-radius: 10px;
 		background-color: #b9c7ca;
+	}
+	.toggle-comments {
+		text-align: center;
+	}
+	.toggle-comments p {
+		cursor: pointer;
+		display: inline-block;
+		margin-bottom: 0;
+		font-weight: bold;
+		color: #cb9d7c;
+		user-select: none;
 	}
 </style>
