@@ -26,11 +26,11 @@ div.comment {
 	display: flex;
 }
 
-.comment-content {
+div.comment p {
 	flex-grow: 1;
 	font-size: 12px;
 	overflow-wrap: break-word;
-    max-width: calc(100% - 70px);
+    max-width: calc(100% - 80px);
 	text-align: justify;
 }
 

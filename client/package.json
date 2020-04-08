@@ -47,6 +47,7 @@
 		"@types/firebase": "^3.2.1",
 		"@zxteam/cancellation": "^6.0.40",
 		"@zxteam/contract": "^6.0.60",
+		"@zxteam/ensure": "^6.0.56",
 		"@zxteam/errors": "^6.0.57",
 		"firebase": "^7.13.1",
 		"lodash": "^4.17.15",
