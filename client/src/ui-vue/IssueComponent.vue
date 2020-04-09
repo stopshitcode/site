@@ -21,7 +21,6 @@
 				:key="comment.id" />
 			<CommentAdd
 				:issue="issue"
-				@refreshComments="this.getComments"
 			/>
 		</div>
 	</div>
@@ -55,15 +54,16 @@ export default class IssueComponent extends Vue{
 	}
 
 	private async getComments(): Promise<void> {
+		console.log("getComments");
 		if (!window.document.gitService) {
 			return;
 		}
 		this.comments = await window.document.gitService.getIssueComments(this.issue);
 	}
 
-	// created() {
-	// 	this.getComments();	
-	// }
+	mounted() {
+		this.$on("refreshComments", this.getComments);
+	}
 }
 </script>
 

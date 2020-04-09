@@ -22,7 +22,11 @@ export class GitService implements IGitService {
 		if (status && status !== response.status) {
 			throw Error(`Wrong response status code. Received ${response.status}, waiting for ${response}`);
 		}
-        return await response.json();;
+		try {
+			return await response.json();
+		} catch (error) {
+			return {};
+		}
     }
 
 	private validateUser(user: IGitUser): void {
@@ -35,7 +39,6 @@ export class GitService implements IGitService {
 	public async getIssues(): Promise<IGitIssue[]> {
 		const url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/issues`;
 		const response =  await this.makeRequest('GET', url, 200);
-		console.log(response);
 		return response.map((responseIssue: any): IGitIssue => {
 			Ensure().number(responseIssue.id);
 			Ensure().number(responseIssue.number);
@@ -66,11 +69,13 @@ export class GitService implements IGitService {
 		return comments.map((comment: any): IGitComment => {
 			Ensure().number(comment.id);
 			Ensure().string(comment.body);
+			Ensure().string(comment.url);
 			this.validateUser(comment.user);
 			
 			return {
 				id: comment.id,
 				body: comment.body,
+				url: comment.url,
 				user: {
 					id: comment.user.id,
 					login: comment.user.login,
@@ -78,6 +83,10 @@ export class GitService implements IGitService {
 				},
 			}
 		});
+	}
+
+	public removeComment(comment: IGitComment): Promise<void> {
+		return this.makeRequest('DELETE', comment.url);
 	}
 	
 	public addComment(issue: IGitIssue, comment: string): Promise<void> {

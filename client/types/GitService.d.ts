@@ -18,6 +18,7 @@ interface IGitComment {
 	id: number;
 	body: string;
 	user: IGitUser;
+	url: string;
 }
 
 interface IGitService {
@@ -25,4 +26,5 @@ interface IGitService {
 	getIssueComments(issue: IGitIssue): Promise<IGitComment[]>;
 	getCommentReactions(commentId: number): Promise<any>;
 	addComment(issue: IGitIssue, comment: string): Promise<void>;
+	removeComment(comment: IGitComment): Promise<void>;
 }
