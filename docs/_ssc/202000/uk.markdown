@@ -1,9 +1,7 @@
 ---
-layout: ssc
 tags: [test, setup]
 title: Тестуємо SSC
 description: SSC тест українською
-permalink: /:collection/:path/
 ---
 SSC тест українською
 

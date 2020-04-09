@@ -1,9 +1,7 @@
 ---
-layout: ssc
 tags: [test, setup]
 title: Testing SSC
 description: SSC test in english
-permalink: /:collection/:path/
 ---
 SSC test in english
 

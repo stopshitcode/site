@@ -36,6 +36,18 @@ collections:
     output: true
     permalink: /:collection/:path/
 
+defaults:
+  - learning:
+      path: "_learning"
+      type: "learning"
+    values:
+      layout: "learning"
+  - scope:
+      path: "_ssc"
+      type: "ssc"
+    values:
+      layout: "ssc"
+
 # Build settings
 theme: minima
 plugins:
