@@ -29,8 +29,7 @@ export default class IssueCommentComponent extends Vue{
 			return;
 		}
 		await window.document.gitService.removeComment(this.comment);
-		console.log("delete");
-		this.$parent.$emit("refreshComments");
+		this.$parent.$emit("removeComment", this.comment);
 	}
 }
 </script>

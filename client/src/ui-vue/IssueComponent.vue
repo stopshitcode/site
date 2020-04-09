@@ -53,8 +53,11 @@ export default class IssueComponent extends Vue{
 		this.showComments = !this.showComments;
 	}
 
+	fakeRemove(comment: IGitComment): void {
+		this.comments = this.comments.filter(currentComment => currentComment !== comment);
+	}
+
 	private async getComments(): Promise<void> {
-		console.log("getComments");
 		if (!window.document.gitService) {
 			return;
 		}
@@ -63,6 +66,7 @@ export default class IssueComponent extends Vue{
 
 	mounted() {
 		this.$on("refreshComments", this.getComments);
+		this.$on("removeComment", this.fakeRemove);
 	}
 }
 </script>

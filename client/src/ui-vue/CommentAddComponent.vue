@@ -23,7 +23,6 @@ export default class CommentAddComponenet extends Vue{
 			return;
 		}
 		await window.document.gitService.addComment(this.issue, this.comment);
-		console.log("add");
 		this.$parent.$emit("refreshComments");
 	}
 }
