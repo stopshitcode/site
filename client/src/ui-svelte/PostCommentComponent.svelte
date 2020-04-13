@@ -1,7 +1,18 @@
 <script lang="js">
+  import Issue from "./IssueComponent.svelte";
+
   const a = "Svelte";
   const b = "Typescript";
   const c = "Webpack";
+
+  let issues = [];
+	
+  (async () => {
+	if (!window.document.gitService) {
+	  return;
+	}
+ 	issues = await window.document.gitService.getIssues();
+  })();
 
   function postCommentSubmit() {
     const userProfile = window.document.userProfile;
@@ -40,4 +51,7 @@
   </textarea>
   <br />
   <input type="submit" value="Post" class="html-text-box" />
+  {#each issues as issue (issue.id)}
+  	<Issue {issue} />
+  {/each}
 </form>
