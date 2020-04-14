@@ -25,13 +25,17 @@
 		</div>
 	</div>
 	{/each}
-	<AddComment {issue} />
+	<AddComment {issue} {getComments} />
 </div>
 
 <style>
 .comment-wrapper {
 	background-color: #e9e9e9;
-	padding: 10px 10px 10px 60px;
+	margin-left: 60px;
+	padding: 10px;
 	border-radius: 10px;
+}
+.comment {
+	display: flex;
 }
 </style>

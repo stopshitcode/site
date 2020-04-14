@@ -13,7 +13,6 @@ div {
 	flex-direction: column;
 	align-items: center;
 	padding-right: 10px;
-	min-width: 60px;
 }
 p {
 	font-size: 12px;

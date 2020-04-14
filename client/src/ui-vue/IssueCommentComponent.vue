@@ -54,7 +54,6 @@ div.comment {
 	width: 100%;
 }
 .commet-body p {
-	flex-grow: 1;
 	font-size: 12px;
 	overflow-wrap: break-word;
 	text-align: justify;
