@@ -7,7 +7,7 @@ declare module "*.svelte" {
 		intro?: boolean;
 	}
 
-	interface Component<Props> {
+	interface ComponentConstructor<Props> {
 		new(options: ComponentOptions<Props>): any;
 		$set: (props: {}) => any;
 		$on: (event: string, callback: (event: CustomEvent) => any) => any;
@@ -19,7 +19,7 @@ declare module "*.svelte" {
 		};
 	}
 
-	const component: Component<{}>;
+	const Component: ComponentConstructor<{}>;
 
-	export default component;
+	export default Component;
 }

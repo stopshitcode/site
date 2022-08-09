@@ -1,0 +1,3 @@
+- https://aristath.github.io/blog/static-site-comments-using-github-issues-api
+- https://www.reddit.com/r/github/comments/id37su/could_you_in_theory_create_a_forum_using_github/
+- https://utteranc.es/
